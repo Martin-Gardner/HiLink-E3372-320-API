@@ -11,6 +11,7 @@
     01-04-2022 - Added support for HiLink E3372
     01-04-2022 - Fixed issue with HiLink E3372 sms-list api call error 125003 
                  This was caused by not passing the cookie the correct way
+    01-04-2022 - Added support for sending sms - will add support for sending sms to multiple numbers
 
 #>
 
@@ -92,7 +93,7 @@ function New-APIPostRequest
     return $response
 }
 
-# Get a list of SMS messages from e3372 modem
+# Get a list of SMS messages from e3372-320 modem
 Function Get-SMSMessages {
     
     param(
@@ -110,11 +111,12 @@ Function Get-SMSMessages {
     return (New-APIPostRequest -url $ModemsIPAddress -endpoint $API_SMSList -data $data)
 }
 
+# Send a SMS message to a phone number
 Function New-SMSMessage {
     
     param(
         $ModemIpAddress, # Ip address of the HiLink E3372
-        $PhoneNumber, # Phone number to send the SMS to
+        $PhoneNumber, # Phone number to send the SMS to - should allow ; between numbers for multiple numbers
         $Message # Message to send
     )
 
@@ -123,11 +125,16 @@ Function New-SMSMessage {
     $API_SendSMS = "api/sms/send-sms"
 
     # Data to be sent to the API call
-    $data = "<request><Index>-1</Index><Phones><Phone>$PhoneNumber</Phone></Phones><Sca></Sca><Content>$Message</Content><Length>5</Length><Reserved>1</Reserved><Date>-1</Date></request>"
-
+    $data = "<?xml version='1.0' encoding='UTF-8'?><request><Index>-1</Index><Phones><Phone>$PhoneNumber</Phone></Phones><Sca></Sca><Content>$Message</Content><Length>-1</Length><Reserved>1</Reserved><Date>-1</Date></request>"
     return $(New-APIPostRequest -url $ModemsIPAddress -endpoint $API_SendSMS -data $data)
 }
 
-# New-SMSMessage -ModemIpAddress $ModemsIPAddress -PhoneNumber "07413261264" -Message "Hello World"
-$output = Get-SMSMessages -ModemIpAddress $ModemsIPAddress
-$output.innerXML
+# Get Stored SMS Messages
+
+#$output = Get-SMSMessages -ModemIpAddress $ModemsIPAddress
+#$output.innerXML
+
+# Send a SMS message to a phone number
+
+#$output = New-SMSMessage -ModemIpAddress $ModemsIPAddress -PhoneNumber "0123456789" -Message "Hello World"
+#$output.innerXML
