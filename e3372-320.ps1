@@ -17,6 +17,8 @@
 # Ip address of the HiLink E3372
 $ModemsIPAddress = "192.168.8.1"
 
+
+
 <#
     This created a new session with the HiLink E3372.
     
@@ -92,6 +94,7 @@ function New-APIPostRequest
 
 # Get a list of SMS messages from e3372 modem
 Function Get-SMSMessages {
+    
     param(
         $ModemIpAddress # Ip address of the HiLink E3372
     )
@@ -101,17 +104,30 @@ Function Get-SMSMessages {
     $API_SMSList = "api/sms/sms-list"
 
     # Data to be sent to the API call - obtain 20 message from the modem
-    $data = "
-<request>
-    <PageIndex>1</PageIndex>
-    <ReadCount>20</ReadCount>
-    <BoxType>1</BoxType>
-    <SortType>0</SortType
-    ><Ascending>0</Ascending>
-    <UnreadPreferred>1</UnreadPreferred>
-</request>"
+    $data = "<request><PageIndex>1</PageIndex><ReadCount>20</ReadCount><BoxType>1</BoxType><SortType>0</SortType><Ascending>0</Ascending><UnreadPreferred>1</UnreadPreferred></request>"
 
     # return xml response
-    return $(New-APIPostRequest -url $ModemsIPAddress -endpoint $API_SMSList -data $data)
+    return (New-APIPostRequest -url $ModemsIPAddress -endpoint $API_SMSList -data $data)
 }
 
+Function New-SMSMessage {
+    
+    param(
+        $ModemIpAddress, # Ip address of the HiLink E3372
+        $PhoneNumber, # Phone number to send the SMS to
+        $Message # Message to send
+    )
+
+    # API Paths - these are the API paths that are used to control the modem
+    # Do not change these unless you know what you are doing
+    $API_SendSMS = "api/sms/send-sms"
+
+    # Data to be sent to the API call
+    $data = "<request><Index>-1</Index><Phones><Phone>$PhoneNumber</Phone></Phones><Sca></Sca><Content>$Message</Content><Length>5</Length><Reserved>1</Reserved><Date>-1</Date></request>"
+
+    return $(New-APIPostRequest -url $ModemsIPAddress -endpoint $API_SendSMS -data $data)
+}
+
+# New-SMSMessage -ModemIpAddress $ModemsIPAddress -PhoneNumber "07413261264" -Message "Hello World"
+$output = Get-SMSMessages -ModemIpAddress $ModemsIPAddress
+$output.innerXML
