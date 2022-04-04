@@ -87,7 +87,7 @@ function New-E3372_Api_Request
     else 
     {
         # This is a POST request
-        [xml]$response = (Invoke-RestMethod -Uri "http://$url$endpoint" -Method Post -ContentType "text/xml" -Headers $headers -WebSession $session)
+        [xml]$response = (Invoke-RestMethod -Uri "http://$url$endpoint" -Method Post -ContentType "text/xml" -Headers $headers -WebSession $session -Body $data)
     }
 
     # Check to see if the response was successful
@@ -212,7 +212,7 @@ Function New-SMSMessage {
     $API_SendSMS = "/api/sms/send-sms"
 
     # Data to be sent to the API call
-    $data = "<?xml version='1.0' encoding='UTF-8'?><request><Index>-1</Index><Phones><Phone>$PhoneNumber</Phone></Phones><Sca></Sca><Content>$Message</Content><Length>-1</Length><Reserved>1</Reserved><Date>-1</Date></request>"
+    $data = "<request><Index>-1</Index><Phones><Phone>$PhoneNumber</Phone></Phones><Sca></Sca><Content>$Message</Content><Length>-1</Length><Reserved>1</Reserved><Date>-1</Date></request>"
     [xml]$response = (New-E3372_Api_Request -url $ModemsIPAddress -endpoint $API_SendSMS -data $data)
     return $response
 }
@@ -289,8 +289,8 @@ function Get-DeviceTrafficStats
 
 # Send a SMS message to a phone number
 
-#$output = New-SMSMessage -ModemIpAddress $ModemsIPAddress -PhoneNumber "0123456789" -Message "Hello World"
-#$output.innerXML
+$output = New-SMSMessage -ModemIpAddress $ModemsIPAddress -PhoneNumber "01234567890" -Message "Hello World"
+$output.innerXML
 
 #########################
 
