@@ -5,12 +5,12 @@
 #########################################################################################
 function New-API-Request-InternalFunction
 {
-    
+
     <#
     .SYNOPSIS
         Performs an API called against a E3372-320 4G Modem running in HiLink Mode
     .DESCRIPTION
-        Supports POST and GET requests to API running on the 
+        Supports POST and GET requests to API running on the
         E3372-320 4G Modem running in HiLink Mode
     .EXAMPLE
         New-API-Request-InternalFunction -IP_Or_Hostname "192.168.8.1" -API_Path "/api/deviceinformation"
@@ -69,17 +69,17 @@ function New-API-Request-InternalFunction
         Add the Session ID to the Cookie
 
         Note: I was unable to add the cookie to the headers array
-              as this caused the API request to fail  
+              as this caused the API request to fail
     #>
     $headers = @{"__RequestVerificationToken" = $SessionKey} # Add Session Key to HTTP Header
-    
+
     $session = New-Object Microsoft.PowerShell.Commands.WebRequestSession
-    $cookie = New-Object System.Net.Cookie 
+    $cookie = New-Object System.Net.Cookie
     $cookie.Name = "SessionID"
     $cookie.Value = $SessionID
     $cookie.Domain = $IP_Or_Hostname
     $session.Cookies.Add($cookie) # Add Session ID to Cookie, then add Cookie to Session Variable
-    
+
     # Create an empty xml document to store the API response in
     [xml]$response = ""
 
@@ -97,7 +97,7 @@ function New-API-Request-InternalFunction
             throw "Unable to perform GET request to modem"
         }
     }
-    else 
+    else
     {
         try {
             # Try to perform a POST request
@@ -113,9 +113,9 @@ function New-API-Request-InternalFunction
     #>
     $api_errorcheck = $response.error.code # Obtain Possible Error Code from API Response
     $api_error = "" # Create a string to hold error if found
-    <# 
+    <#
         Check to see if $api_errorcheck is NullOrEmpty, if it is not process for error code
-        this will check against known error codes stored in this function and return 
+        this will check against known error codes stored in this function and return
         a nicer error message
     #>
     if(!([string]::IsNullOrEmpty($api_errorcheck)))
@@ -177,12 +177,12 @@ function Get-Hash
         [parameter(Mandatory=$true, ValueFromPipeline=$true, ParameterSetName="set1")]
         [String]
         $text,
-        
-        [parameter(Position=0, Mandatory=$true, 
+
+        [parameter(Position=0, Mandatory=$true,
         ValueFromPipeline=$false, ParameterSetName="set2")]
         [String]
         $file = "",
-        
+
         [parameter(Mandatory=$false, ValueFromPipeline=$false)]
         [ValidateSet("MD5", "SHA", "SHA1", "SHA-256", "SHA-384", "SHA-512")]
         [String]
@@ -208,7 +208,7 @@ function Get-Hash
             }
             try {
                 [System.IO.FileStream]$fileStream = [System.IO.File]::Open($file, [System.IO.FileMode]::Open);
-                $hashAlgorithm.ComputeHash($fileStream) | 
+                $hashAlgorithm.ComputeHash($fileStream) |
                     ForEach-Object { [void] $md5StringBuilder.Append($_.ToString("x2")) }
             }
             catch {
@@ -220,7 +220,7 @@ function Get-Hash
             }
         }
         else {
-            $hashAlgorithm.ComputeHash($ue.GetBytes($text)) | 
+            $hashAlgorithm.ComputeHash($ue.GetBytes($text)) |
                 ForEach-Object { [void] $md5StringBuilder.Append($_.ToString("x2")) }
         }
 
@@ -251,7 +251,7 @@ function New-E3372-SMS
 
     [CmdletBinding()]
     param (
-  
+
         [Parameter(Mandatory=$true, HelpMessage='IP Address or Hostname of the Modem')]
         [ValidateNotNullOrEmpty()]
         [string]
@@ -283,7 +283,7 @@ function New-E3372-SMS
     {
         return $true
     }
-    else 
+    else
     {
         return $false
     }
@@ -309,7 +309,7 @@ function Get-E3372-SMS
 
     [CmdletBinding()]
     param (
-  
+
         [Parameter(Mandatory=$true, HelpMessage='IP Address or Hostname of the Modem')]
         [ValidateNotNullOrEmpty()]
         [string]
@@ -380,7 +380,7 @@ function Remove-E3372-SMS
 
     [CmdletBinding()]
     param (
-  
+
         [Parameter(Mandatory=$true, HelpMessage='IP Address or Hostname of the Modem')]
         [ValidateNotNullOrEmpty()]
         [string]
@@ -407,7 +407,7 @@ function Remove-E3372-SMS
     {
         return $true
     }
-    else 
+    else
     {
         return $false
     }
@@ -436,7 +436,7 @@ function Set-E3372-4G-Modem
 
     [CmdletBinding()]
     param (
-  
+
         [Parameter(Mandatory=$true, HelpMessage='IP Address or Hostname of the Modem')]
         [ValidateNotNullOrEmpty()]
         [string]
@@ -474,7 +474,7 @@ function Set-E3372-4G-Modem
     {
         return $true
     }
-    else 
+    else
     {
         return $false
     }
@@ -486,23 +486,23 @@ function Set-E3372-4G-Modem
 
     Tested Working:
 
-    - SMS Management - 
+    - SMS Management -
 
     Send SMS Message - returns true if successful
     $result = New-E3372-SMS -IP_Or_Hostname "192.168.8.1" -PhoneNumber "0123456789" -MsgConent "Test Message"
 
     Get SMS Messages - returns a collection of hashtables
     $result = Get-E3372-SMS -IP_Or_Hostname "192.168.8.1"
-    
+
     Get SMS Messages that were SENT from Modem- returns a collection of hashtables
     $result = Get-E3372-SMS -IP_Or_Hostname "192.168.8.1" -SentMessages
 
     Remove SMS Message - returns true if successful
     Remove-E3372-SMS -IP_Or_Hostname "192.168.8.1" -MessageIndex 40002
 
-    Remove All Sent Messages 
+    Remove All Sent Messages
     Get-E3372-SMS -IP_Or_Hostname "192.168.8.1" -SentMessages | ForEach-Object {Remove-E3372-SMS -IP_Or_Hostname "192.168.8.1" -MessageIndex $_.Index}
-    
+
     - 4G Modem Management -
 
     Set 4G Modem on E3372 Modem Status
@@ -513,9 +513,7 @@ function Set-E3372-4G-Modem
     Enable 4G Modem
     Set-E3372-4G-Modem -IP_Or_Hostname "192.168.8.1" -Enable $true
 
+
+    Untested:
+
 #>
-
-
-
-
-
